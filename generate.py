@@ -182,7 +182,7 @@ for jsonFile in os.listdir(input_idc_file_loc):
 
 		symbols = generation_map[lib_name]
 		for s in lib_symbols:
-			if "name" in s:
+			if "name" in s and s["name"] is not None:
 				symbols.add(s["name"])
 
 for lib_name, symbols in generation_map.items():
