@@ -169,45 +169,46 @@ json_list = set()
 
 for jsonFile in os.listdir(input_idc_file_loc):
 	if jsonFile.endswith(".sprx.json"):
-		print("[INFO] Loading Sprx Documentation File : " + jsonFile + "\n")
-		
-		if jsonFile in ignore_jsons:
-			print("[BLOCKED] Json is in blocked json list.\n")
-		else:
-			input_sprx_content = json.load(codecs.open(input_idc_file_loc + "/" + jsonFile, 'r', 'utf-8-sig'))
-
-			module_name = input_sprx_content["modules"][0]["name"]
-			json_name = jsonFile[:-10] # strip .sprx.json
-
-			if (module_name, json_name) in rename_jsons:
-				module_name = rename_jsons[(module_name, json_name)]
-
-			if module_name in json_list:
-				print("[HONEYPOT] " + module_name + " has already been parsed and generated\n")
-			else:
-				json_list.add(module_name)
-				xcount = 0
-				print("Module : " + module_name + " - Generating Stub for this prx!\n")
-				
-				for modLibrary in input_sprx_content["modules"][0]["libraries"]:
-					
-					lib_name = modLibrary["name"]
-					lib_is_export = modLibrary["is_export"]
-					lib_symbols = modLibrary["symbols"]
-					
-					# Rename colliding libs
-					if (lib_name, json_name) in rename_jsons:
-						lib_name = rename_jsons[(lib_name, json_name)]
-
-					print("[LIBRARY_DETECTED] : " + lib_name + "\n")
-					
-					if lib_is_export:
-						genAsm(lib_symbols, lib_name)
-					else:
-						print("IS_EXPORT (FALSE) -> No lib for " + lib_name + "\n")
-
-		
-	else:
 		print("[INFO] " + jsonFile + " Is not a sprx documentation\n")
+		continue
+
+	print("[INFO] Loading Sprx Documentation File : " + jsonFile + "\n")
+
+	if jsonFile in ignore_jsons:
+		print("[BLOCKED] Json is in blocked json list.\n")
+		continue
+
+	input_sprx_content = json.load(codecs.open(input_idc_file_loc + "/" + jsonFile, 'r', 'utf-8-sig'))
+
+	module_name = input_sprx_content["modules"][0]["name"]
+	json_name = jsonFile[:-10] # strip .sprx.json
+
+	if (module_name, json_name) in rename_jsons:
+		module_name = rename_jsons[(module_name, json_name)]
+
+	if module_name in json_list:
+		print("[HONEYPOT] " + module_name + " has already been parsed and generated\n")
+		continue
+
+	json_list.add(module_name)
+	xcount = 0
+	print("Module : " + module_name + " - Generating Stub for this prx!\n")
+
+	for modLibrary in input_sprx_content["modules"][0]["libraries"]:
+
+		lib_name = modLibrary["name"]
+		lib_is_export = modLibrary["is_export"]
+		lib_symbols = modLibrary["symbols"]
+
+		# Rename colliding libs
+		if (lib_name, json_name) in rename_jsons:
+			lib_name = rename_jsons[(lib_name, json_name)]
+
+		print("[LIBRARY_DETECTED] : " + lib_name + "\n")
+
+		if lib_is_export:
+			genAsm(lib_symbols, lib_name)
+		else:
+			print("IS_EXPORT (FALSE) -> No lib for " + lib_name + "\n")
 
 print("[INFO] Finished Generating PRX Source Files\n")
