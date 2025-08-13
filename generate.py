@@ -145,7 +145,7 @@ print("Stub Documentation File Location : " + sys.argv[1] + "\n")
 generation_map = collections.defaultdict(set)
 
 for jsonFile in os.listdir(input_idc_file_loc):
-	if jsonFile.endswith(".sprx.json"):
+	if not jsonFile.endswith(".sprx.json"):
 		print("[INFO] " + jsonFile + " Is not a sprx documentation\n")
 		continue
 
